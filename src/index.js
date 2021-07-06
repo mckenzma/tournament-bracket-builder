@@ -348,6 +348,7 @@ var testCases = [
   }
 ];
 
+// Create a series of cases
 for (var int = 1; int <= 20; int++) {
   // initialize empty array for testing
   var arr = [];
@@ -357,12 +358,15 @@ for (var int = 1; int <= 20; int++) {
     arr[i] = i + 1;
   }
 
+  // Calculate bracket size based on 'int'
+  // Bracket size will be based on powers of 2
   var exp = 1;
   while (int > Math.pow(2, exp)) {
     exp++;
   }
   var size = Math.pow(2, exp);
 
+  // Create emtpy final array
   var finalArr = [];
 
   finalArr = finalArr.concat(balanceBracket(arr, size));
@@ -371,6 +375,7 @@ for (var int = 1; int <= 20; int++) {
   console.log("final: ", finalArr);
 }
 
+// Function to "balance arrays"
 function balanceBracket(array, size) {
   var length = array.length;
 
@@ -379,9 +384,11 @@ function balanceBracket(array, size) {
   if (length >= size / 2 && length < size - 1) {
     var indexToSplit = Math.ceil(length / 2);
 
+    // Split array into 2: left & right
     var left = array.slice(0, indexToSplit);
     var right = array.slice(indexToSplit, size);
 
+    // Check and balance left / right arrays if needed
     if (left.length < size / 2) {
       temp = temp.concat(balanceBracket(left, size / 2));
     }

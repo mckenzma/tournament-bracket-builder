@@ -13,7 +13,7 @@ console.clear();
 
 var testCases = [
   {
-    case: "A",
+    case: 'A',
     totalVals: 2,
     totalNulls: 2,
     start: [1, 2, null, null],
@@ -348,7 +348,6 @@ var testCases = [
   }
 ];
 
-// Create a series of cases
 for (var int = 1; int <= 20; int++) {
   // initialize empty array for testing
   var arr = [];
@@ -358,24 +357,20 @@ for (var int = 1; int <= 20; int++) {
     arr[i] = i + 1;
   }
 
-  // Calculate bracket size based on 'int'
-  // Bracket size will be based on powers of 2
   var exp = 1;
   while (int > Math.pow(2, exp)) {
     exp++;
   }
   var size = Math.pow(2, exp);
 
-  // Create emtpy final array
   var finalArr = [];
 
   finalArr = finalArr.concat(balanceBracket(arr, size));
-  console.log("num: ", int);
-  console.log("initial: ", arr);
-  console.log("final: ", finalArr);
+  // console.log('num: ', int);
+  // console.log('initial: ', arr);
+  // console.log('final: ', finalArr);
 }
 
-// Function to "balance arrays"
 function balanceBracket(array, size) {
   var length = array.length;
 
@@ -384,11 +379,9 @@ function balanceBracket(array, size) {
   if (length >= size / 2 && length < size - 1) {
     var indexToSplit = Math.ceil(length / 2);
 
-    // Split array into 2: left & right
     var left = array.slice(0, indexToSplit);
     var right = array.slice(indexToSplit, size);
 
-    // Check and balance left / right arrays if needed
     if (left.length < size / 2) {
       temp = temp.concat(balanceBracket(left, size / 2));
     }
@@ -408,4 +401,78 @@ function balanceBracket(array, size) {
   }
 
   return temp;
+}
+
+// console.log('/////////////////////////');
+// console.log('-------------------------');
+// console.log('/////////////////////////');
+
+console.log('testing arrays');
+var sizes = [2, 4, 8, 16];
+
+for (var i = 0; i < sizes.length; i++) {
+  let size = sizes[i];
+  // console.log(size);
+
+  if (size === 2) {
+    console.log('# fights = ', size - 1);
+  } else {
+    console.log('# fights = ', size);
+
+    let array = [];
+    for (var index = 0; index < size; index++) {
+      array[index] = index + 1;
+    }
+    console.log(array);
+
+    // var left = array.slice(0, size / 2);
+    // var right = array.slice(size / 2, size);
+    // console.log('left: ', left);
+    // console.log('right: ', right);
+
+    // for (var j = 0; j < size - 2; j++) {
+    //   console.log(j + 1);
+
+    // }
+    let arr = [];
+    buildBracketArray(array, arr);
+    console.log(arr);
+
+    buildBracket(arr);
+  }
+}
+
+function buildBracketArray(array, arr) {
+  // let arr = [];
+
+  var left = array.slice(0, array.length / 2);
+  arr.push(left);
+  var right = array.slice(array.length / 2, array.length);
+  if (right.length >= 4) {
+    buildBracketArray(right, arr);
+  } else {
+    arr.push(right);
+  }
+
+  return arr;
+}
+
+function buildBracket(arr) {
+  for (var i = 0; i < arr.length - 1; i++) {
+    let length = arr[i].length;
+    if (length > 2) {
+      for (var j = 0; j < arr[i + 1].length; j++) {
+        console.log('Create WINNER_ADVANCES_TO');
+        console.log(arr[i][2 * j], '-->', arr[i + 1][j]);
+        console.log(arr[i][2 * j + 1], '-->', arr[i + 1][j]);
+      }
+    } else {
+      console.log('Create LOSER_ADVANCES_TO');
+      console.log(arr[i][0], '-->', arr[i + 1][0]);
+      console.log(arr[i][1], '-->', arr[i + 1][0]);
+      console.log('Create WINNER_ADVANCES_TO');
+      console.log(arr[i][0], '-->', arr[i + 1][1]);
+      console.log(arr[i][1], '-->', arr[i + 1][1]);
+    }
+  }
 }

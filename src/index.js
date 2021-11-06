@@ -407,40 +407,40 @@ function balanceBracket(array, size) {
 // console.log('-------------------------');
 // console.log('/////////////////////////');
 
-console.log('testing arrays');
+// console.log('testing arrays');
 var sizes = [2, 4, 8, 16];
 
-for (var i = 0; i < sizes.length; i++) {
-  let size = sizes[i];
-  // console.log(size);
+// for (var i = 0; i < sizes.length; i++) {
+//   let size = sizes[i];
+//   // console.log(size);
 
-  if (size === 2) {
-    console.log('# fights = ', size - 1);
-  } else {
-    console.log('# fights = ', size);
+//   if (size === 2) {
+//     console.log('# fights = ', size - 1);
+//   } else {
+//     console.log('# fights = ', size);
 
-    let array = [];
-    for (var index = 0; index < size; index++) {
-      array[index] = index + 1;
-    }
-    console.log(array);
+//     let array = [];
+//     for (var index = 0; index < size; index++) {
+//       array[index] = index + 1;
+//     }
+//     console.log(array);
 
-    // var left = array.slice(0, size / 2);
-    // var right = array.slice(size / 2, size);
-    // console.log('left: ', left);
-    // console.log('right: ', right);
+//     // var left = array.slice(0, size / 2);
+//     // var right = array.slice(size / 2, size);
+//     // console.log('left: ', left);
+//     // console.log('right: ', right);
 
-    // for (var j = 0; j < size - 2; j++) {
-    //   console.log(j + 1);
+//     // for (var j = 0; j < size - 2; j++) {
+//     //   console.log(j + 1);
 
-    // }
-    let arr = [];
-    buildBracketArray(array, arr);
-    console.log(arr);
+//     // }
+//     let arr = [];
+//     buildBracketArray(array, arr);
+//     console.log(arr);
 
-    buildBracket(arr);
-  }
-}
+//     buildBracket(arr);
+//   }
+// }
 
 function buildBracketArray(array, arr) {
   // let arr = [];
@@ -457,22 +457,134 @@ function buildBracketArray(array, arr) {
   return arr;
 }
 
+let nodes = [];
+let rels = [];
+
+function makeNode(value) {
+  var obj = {};
+
+  obj.id = value;
+  obj.label = `Fight ${value}`;
+
+  return obj;
+}
+
+function makeRel(start, end, type) {
+  var obj = {};
+
+  obj.from = start;
+  obj.to = end;
+  obj.label = type;
+
+  return obj;
+}
+
 function buildBracket(arr) {
   for (var i = 0; i < arr.length - 1; i++) {
     let length = arr[i].length;
+    
     if (length > 2) {
       for (var j = 0; j < arr[i + 1].length; j++) {
-        console.log('Create WINNER_ADVANCES_TO');
-        console.log(arr[i][2 * j], '-->', arr[i + 1][j]);
-        console.log(arr[i][2 * j + 1], '-->', arr[i + 1][j]);
+        nodes.push(makeNode(arr[i][2 * j]));
+        nodes.push(makeNode(arr[i][2 * j + 1]));
+        
+        // console.log('Create WINNER_ADVANCES_TO');
+        // console.log(arr[i][2 * j], '-->', arr[i + 1][j]);
+        // console.log(arr[i][2 * j + 1], '-->', arr[i + 1][j]);
+        rels.push(makeRel(arr[i][2 * j], arr[i + 1][j], 'WINNER_ADVANCES_TO'));
+        rels.push(makeRel(arr[i][2 * j + 1], arr[i + 1][j], 'WINNER_ADVANCES_TO'));
       }
     } else {
-      console.log('Create LOSER_ADVANCES_TO');
-      console.log(arr[i][0], '-->', arr[i + 1][0]);
-      console.log(arr[i][1], '-->', arr[i + 1][0]);
-      console.log('Create WINNER_ADVANCES_TO');
-      console.log(arr[i][0], '-->', arr[i + 1][1]);
-      console.log(arr[i][1], '-->', arr[i + 1][1]);
+      nodes.push(makeNode(arr[i][0]));
+      nodes.push(makeNode(arr[i][1]));
+      nodes.push(makeNode(arr[i + 1][0]));
+      nodes.push(makeNode(arr[i + 1][1]));
+
+      // console.log('Create LOSER_ADVANCES_TO');
+      // console.log(arr[i][0], '-->', arr[i + 1][0]);
+      // console.log(arr[i][1], '-->', arr[i + 1][0]);
+      rels.push(makeRel(arr[i][0], arr[i + 1][0], 'LOSER_ADVANCES_TO'));
+      rels.push(makeRel(arr[i][1], arr[i + 1][0], 'LOSER_ADVANCES_TO'));
+      // console.log('Create WINNER_ADVANCES_TO');
+      // console.log(arr[i][0], '-->', arr[i + 1][1]);
+      // console.log(arr[i][1], '-->', arr[i + 1][1]);
+      rels.push(makeRel(arr[i][0], arr[i + 1][1], 'WINNER_ADVANCES_TO'));
+      rels.push(makeRel(arr[i][1], arr[i + 1][1], 'WINNER_ADVANCES_TO'));
     }
   }
 }
+
+// UNWIND [
+//   {start: 1, end: 5, relType: 'WINNER_ADVANCES_TO'},
+//   {start: 2, end: 5, relType: 'WINNER_ADVANCES_TO'},
+//   {start: 3, end: 6, relType: 'WINNER_ADVANCES_TO'},
+//   {start: 4, end: 6, relType: 'WINNER_ADVANCES_TO'},
+//   {start: 5, end: 7, relType: 'LOSER_ADVANCES_TO'},
+//   {start: 6, end: 7, relType: 'LOSER_ADVANCES_TO'},
+//   {start: 5, end: 8, relType: 'WINNER_ADVANCES_TO'},
+//   {start: 6, end: 8, relType: 'WINNER_ADVANCES_TO'}  
+// ] as relPair
+// MATCH (start:Fight {id: relPair.start})
+// MATCH (end:Fight {id: relPair.end})
+// CALL apoc.merge.relationship(start, relPair.relType, {}, {}, end, {})
+// YIELD rel
+// WITH start, end, rel
+// RETURN start, end, rel
+
+size = 16;
+
+if (size === 2) {
+  console.log('# fights = ', size - 1);
+} else {
+  console.log('# fights = ', size);
+
+  let array = [];
+  for (var index = 0; index < size; index++) {
+    array[index] = index + 1;
+  }
+  // console.log(array);
+
+  // var left = array.slice(0, size / 2);
+  // var right = array.slice(size / 2, size);
+  // console.log('left: ', left);
+  // console.log('right: ', right);
+
+  // for (var j = 0; j < size - 2; j++) {
+  //   console.log(j + 1);
+
+  // }
+  let arr = [];
+  buildBracketArray(array, arr);
+  console.log(arr);
+
+  buildBracket(arr);
+}
+
+
+
+// var nodes_2 = new vis.DataSet([
+//   { id: 1, label: "Node 1" },
+//   { id: 2, label: "Node 2" },
+//   { id: 3, label: "Node 3" },
+//   { id: 4, label: "Node 4" },
+//   { id: 5, label: "Node 5" },
+// ]);
+
+// // create an array with edges
+// var edges = new vis.DataSet([
+//   // { from: 1, to: 3, label: 'test' },
+//   // { from: 1, to: 2 },
+//   // { from: 2, to: 4 },
+//   // { from: 2, to: 5 },
+//   // { from: 3, to: 3 },
+// ]);
+
+// create a network
+var container = document.getElementById("bracket");
+var data = {
+  // nodes: nodes_2,
+  nodes: new vis.DataSet(nodes),
+  edges: new vis.DataSet(rels),
+};
+var options = {};
+var network = new vis.Network(container, data, options);

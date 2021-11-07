@@ -460,11 +460,13 @@ function buildBracketArray(array, arr) {
 let nodes = [];
 let rels = [];
 
-function makeNode(value) {
+function makeNode(value, x, y) {
   var obj = {};
 
   obj.id = value;
   obj.label = `Fight ${value}`;
+  obj.x = x;
+  obj.y = y;
 
   return obj;
 }
@@ -480,13 +482,16 @@ function makeRel(start, end, type) {
 }
 
 function buildBracket(arr) {
+  const xSpacing = 300;
+  const ySpacing = 100;
+
   for (var i = 0; i < arr.length - 1; i++) {
     let length = arr[i].length;
     
     if (length > 2) {
       for (var j = 0; j < arr[i + 1].length; j++) {
-        nodes.push(makeNode(arr[i][2 * j]));
-        nodes.push(makeNode(arr[i][2 * j + 1]));
+        nodes.push(makeNode(arr[i][2 * j], i * xSpacing, (2*j)*Math.pow(2,i) * ySpacing + Math.pow(2,i) * ySpacing / 2));
+        nodes.push(makeNode(arr[i][2 * j + 1], i * xSpacing, (2*j+1)*Math.pow(2,i) * ySpacing  + Math.pow(2,i) * ySpacing / 2));
         
         // console.log('Create WINNER_ADVANCES_TO');
         // console.log(arr[i][2 * j], '-->', arr[i + 1][j]);
@@ -495,10 +500,10 @@ function buildBracket(arr) {
         rels.push(makeRel(arr[i][2 * j + 1], arr[i + 1][j], 'WINNER_ADVANCES_TO'));
       }
     } else {
-      nodes.push(makeNode(arr[i][0]));
-      nodes.push(makeNode(arr[i][1]));
-      nodes.push(makeNode(arr[i + 1][0]));
-      nodes.push(makeNode(arr[i + 1][1]));
+      nodes.push(makeNode(arr[i][0], i * xSpacing, (2*0)*Math.pow(2,i-1) * ySpacing + Math.pow(2,i) * ySpacing / 2));
+      nodes.push(makeNode(arr[i][1], i * xSpacing, (2*1)*Math.pow(2,i-1) * ySpacing + Math.pow(2,i) * ySpacing / 2));
+      nodes.push(makeNode(arr[i + 1][0], (i+1) * xSpacing - xSpacing/2, (2*0)*Math.pow(2,i-1) * ySpacing + Math.pow(2,i+1) * ySpacing / 2));
+      nodes.push(makeNode(arr[i + 1][1], (i+1) * xSpacing, (2*0)*Math.pow(2,i-1) * ySpacing + Math.pow(2,i+1) * ySpacing / 2));
 
       // console.log('Create LOSER_ADVANCES_TO');
       // console.log(arr[i][0], '-->', arr[i + 1][0]);
@@ -513,23 +518,6 @@ function buildBracket(arr) {
     }
   }
 }
-
-// UNWIND [
-//   {start: 1, end: 5, relType: 'WINNER_ADVANCES_TO'},
-//   {start: 2, end: 5, relType: 'WINNER_ADVANCES_TO'},
-//   {start: 3, end: 6, relType: 'WINNER_ADVANCES_TO'},
-//   {start: 4, end: 6, relType: 'WINNER_ADVANCES_TO'},
-//   {start: 5, end: 7, relType: 'LOSER_ADVANCES_TO'},
-//   {start: 6, end: 7, relType: 'LOSER_ADVANCES_TO'},
-//   {start: 5, end: 8, relType: 'WINNER_ADVANCES_TO'},
-//   {start: 6, end: 8, relType: 'WINNER_ADVANCES_TO'}  
-// ] as relPair
-// MATCH (start:Fight {id: relPair.start})
-// MATCH (end:Fight {id: relPair.end})
-// CALL apoc.merge.relationship(start, relPair.relType, {}, {}, end, {})
-// YIELD rel
-// WITH start, end, rel
-// RETURN start, end, rel
 
 size = 16;
 
@@ -560,25 +548,6 @@ if (size === 2) {
   buildBracket(arr);
 }
 
-
-
-// var nodes_2 = new vis.DataSet([
-//   { id: 1, label: "Node 1" },
-//   { id: 2, label: "Node 2" },
-//   { id: 3, label: "Node 3" },
-//   { id: 4, label: "Node 4" },
-//   { id: 5, label: "Node 5" },
-// ]);
-
-// // create an array with edges
-// var edges = new vis.DataSet([
-//   // { from: 1, to: 3, label: 'test' },
-//   // { from: 1, to: 2 },
-//   // { from: 2, to: 4 },
-//   // { from: 2, to: 5 },
-//   // { from: 3, to: 3 },
-// ]);
-
 // create a network
 var container = document.getElementById("bracket");
 var data = {
@@ -586,5 +555,19 @@ var data = {
   nodes: new vis.DataSet(nodes),
   edges: new vis.DataSet(rels),
 };
-var options = {};
+var options = {
+  nodes: {
+    fixed: true,
+  },
+  edges: {
+    arrows: 'to',
+    smooth: {
+      // type: 'straightCross',
+      roundness: 1
+    },
+    // font: {
+    //   align: 'horizontal'
+    // }
+  }
+};
 var network = new vis.Network(container, data, options);

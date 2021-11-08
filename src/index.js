@@ -366,9 +366,6 @@ for (var int = 1; int <= 20; int++) {
   var finalArr = [];
 
   finalArr = finalArr.concat(balanceBracket(arr, size));
-  // console.log('num: ', int);
-  // console.log('initial: ', arr);
-  // console.log('final: ', finalArr);
 }
 
 function balanceBracket(array, size) {
@@ -496,9 +493,7 @@ function buildBracket(arr) {
         nodes.push(makeNode(arr[i][2 * j], i * xSpacing, (2*j)*Math.pow(2,i) * ySpacing + Math.pow(2,i) * ySpacing / 2));
         nodes.push(makeNode(arr[i][2 * j + 1], i * xSpacing, (2*j+1)*Math.pow(2,i) * ySpacing  + Math.pow(2,i) * ySpacing / 2));
         
-        // console.log('Create WINNER_ADVANCES_TO');
-        // console.log(arr[i][2 * j], '-->', arr[i + 1][j]);
-        // console.log(arr[i][2 * j + 1], '-->', arr[i + 1][j]);
+        // Rels for winners to advance
         // rels.push(makeRel(arr[i][2 * j], arr[i + 1][j], 'WINNER_ADVANCES_TO'));
         rels.push(makeRel(arr[i][2 * j], arr[i + 1][j], ''));
         // rels.push(makeRel(arr[i][2 * j + 1], arr[i + 1][j], 'WINNER_ADVANCES_TO'));
@@ -510,16 +505,13 @@ function buildBracket(arr) {
       nodes.push(makeNode(arr[i + 1][0], (i+1) * xSpacing /*- xSpacing/2*/, (2*0)*Math.pow(2,i-1) * ySpacing + Math.pow(2,i+1) * ySpacing / 2)); // 3rd Place
       nodes.push(makeNode(arr[i + 1][1], (i+2) * xSpacing, (2*0)*Math.pow(2,i-1) * ySpacing + Math.pow(2,i+1) * ySpacing / 2)); // Final
 
-      // console.log('Create LOSER_ADVANCES_TO');
-      // console.log(arr[i][0], '-->', arr[i + 1][0]);
-      // console.log(arr[i][1], '-->', arr[i + 1][0]);
+      // Rels to 3rd place
       // rels.push(makeRel(arr[i][0], arr[i + 1][0], 'LOSER_ADVANCES_TO'));
       rels.push(makeRel(arr[i][0], arr[i + 1][0], ''));
       // rels.push(makeRel(arr[i][1], arr[i + 1][0], 'LOSER_ADVANCES_TO'));
       rels.push(makeRel(arr[i][1], arr[i + 1][0], ''));
-      // console.log('Create WINNER_ADVANCES_TO');
-      // console.log(arr[i][0], '-->', arr[i + 1][1]);
-      // console.log(arr[i][1], '-->', arr[i + 1][1]);
+
+      // Rels to Final
       // rels.push(makeRel(arr[i][0], arr[i + 1][1], 'WINNER_ADVANCES_TO'));
       rels.push(makeRel(arr[i][0], arr[i + 1][1], ''));
       // rels.push(makeRel(arr[i][1], arr[i + 1][1], 'WINNER_ADVANCES_TO'));
@@ -528,31 +520,19 @@ function buildBracket(arr) {
   }
 }
 
-
-
 if (size === 2) {
-  console.log('# fights = ', size - 1);
+  // console.log('# fights = ', size - 1);
 } else {
-  console.log('# fights = ', size);
+  // console.log('# fights = ', size);
 
   let array = [];
   for (var index = 0; index < size; index++) {
     array[index] = index + 1;
   }
-  // console.log(array);
-
-  // var left = array.slice(0, size / 2);
-  // var right = array.slice(size / 2, size);
-  // console.log('left: ', left);
-  // console.log('right: ', right);
-
-  // for (var j = 0; j < size - 2; j++) {
-  //   console.log(j + 1);
-
-  // }
+  
   let arr = [];
   buildBracketArray(array, arr);
-  console.log(arr);
+  // console.log(arr);
 
   buildBracket(arr);
 }
@@ -560,7 +540,6 @@ if (size === 2) {
 // create a network
 var container = document.getElementById("bracket");
 var data = {
-  // nodes: nodes_2,
   nodes: new vis.DataSet(nodes),
   edges: new vis.DataSet(rels),
 };

@@ -409,6 +409,7 @@ function balanceBracket(array, size) {
 
 // console.log('testing arrays');
 var sizes = [2, 4, 8, 16];
+size = 16;
 
 // for (var i = 0; i < sizes.length; i++) {
 //   let size = sizes[i];
@@ -464,7 +465,9 @@ function makeNode(value, x, y) {
   var obj = {};
 
   obj.id = value;
-  obj.label = `Fight ${value}`;
+  // obj.label = `Fight ${value}\nPerson 1: #\nPerson 2: #`;
+  obj.label = (value === size ? 'Final\n' : (value === size - 1 ? '3rd Place\n' : (value >= size-3 ? 'Semi-Finals\n' : ''))) 
+              + 'Person 1: #\nPerson 2: #';
   obj.x = x;
   obj.y = y;
 
@@ -482,8 +485,8 @@ function makeRel(start, end, type) {
 }
 
 function buildBracket(arr) {
-  const xSpacing = 300;
-  const ySpacing = 100;
+  const xSpacing = 150;
+  const ySpacing = 50;
 
   for (var i = 0; i < arr.length - 1; i++) {
     let length = arr[i].length;
@@ -496,30 +499,36 @@ function buildBracket(arr) {
         // console.log('Create WINNER_ADVANCES_TO');
         // console.log(arr[i][2 * j], '-->', arr[i + 1][j]);
         // console.log(arr[i][2 * j + 1], '-->', arr[i + 1][j]);
-        rels.push(makeRel(arr[i][2 * j], arr[i + 1][j], 'WINNER_ADVANCES_TO'));
-        rels.push(makeRel(arr[i][2 * j + 1], arr[i + 1][j], 'WINNER_ADVANCES_TO'));
+        // rels.push(makeRel(arr[i][2 * j], arr[i + 1][j], 'WINNER_ADVANCES_TO'));
+        rels.push(makeRel(arr[i][2 * j], arr[i + 1][j], ''));
+        // rels.push(makeRel(arr[i][2 * j + 1], arr[i + 1][j], 'WINNER_ADVANCES_TO'));
+        rels.push(makeRel(arr[i][2 * j + 1], arr[i + 1][j], ''));
       }
     } else {
-      nodes.push(makeNode(arr[i][0], i * xSpacing, (2*0)*Math.pow(2,i-1) * ySpacing + Math.pow(2,i) * ySpacing / 2));
-      nodes.push(makeNode(arr[i][1], i * xSpacing, (2*1)*Math.pow(2,i-1) * ySpacing + Math.pow(2,i) * ySpacing / 2));
-      nodes.push(makeNode(arr[i + 1][0], (i+1) * xSpacing - xSpacing/2, (2*0)*Math.pow(2,i-1) * ySpacing + Math.pow(2,i+1) * ySpacing / 2));
-      nodes.push(makeNode(arr[i + 1][1], (i+1) * xSpacing, (2*0)*Math.pow(2,i-1) * ySpacing + Math.pow(2,i+1) * ySpacing / 2));
+      nodes.push(makeNode(arr[i][0], i * xSpacing, (2*0)*Math.pow(2,i-1) * ySpacing + Math.pow(2,i) * ySpacing / 2)); // Semi final #1
+      nodes.push(makeNode(arr[i][1], i * xSpacing, (2*1)*Math.pow(2,i-1) * ySpacing + Math.pow(2,i) * ySpacing / 2)); // Semi final #2
+      nodes.push(makeNode(arr[i + 1][0], (i+1) * xSpacing /*- xSpacing/2*/, (2*0)*Math.pow(2,i-1) * ySpacing + Math.pow(2,i+1) * ySpacing / 2)); // 3rd Place
+      nodes.push(makeNode(arr[i + 1][1], (i+2) * xSpacing, (2*0)*Math.pow(2,i-1) * ySpacing + Math.pow(2,i+1) * ySpacing / 2)); // Final
 
       // console.log('Create LOSER_ADVANCES_TO');
       // console.log(arr[i][0], '-->', arr[i + 1][0]);
       // console.log(arr[i][1], '-->', arr[i + 1][0]);
-      rels.push(makeRel(arr[i][0], arr[i + 1][0], 'LOSER_ADVANCES_TO'));
-      rels.push(makeRel(arr[i][1], arr[i + 1][0], 'LOSER_ADVANCES_TO'));
+      // rels.push(makeRel(arr[i][0], arr[i + 1][0], 'LOSER_ADVANCES_TO'));
+      rels.push(makeRel(arr[i][0], arr[i + 1][0], ''));
+      // rels.push(makeRel(arr[i][1], arr[i + 1][0], 'LOSER_ADVANCES_TO'));
+      rels.push(makeRel(arr[i][1], arr[i + 1][0], ''));
       // console.log('Create WINNER_ADVANCES_TO');
       // console.log(arr[i][0], '-->', arr[i + 1][1]);
       // console.log(arr[i][1], '-->', arr[i + 1][1]);
-      rels.push(makeRel(arr[i][0], arr[i + 1][1], 'WINNER_ADVANCES_TO'));
-      rels.push(makeRel(arr[i][1], arr[i + 1][1], 'WINNER_ADVANCES_TO'));
+      // rels.push(makeRel(arr[i][0], arr[i + 1][1], 'WINNER_ADVANCES_TO'));
+      rels.push(makeRel(arr[i][0], arr[i + 1][1], ''));
+      // rels.push(makeRel(arr[i][1], arr[i + 1][1], 'WINNER_ADVANCES_TO'));
+      rels.push(makeRel(arr[i][1], arr[i + 1][1], ''));
     }
   }
 }
 
-size = 16;
+
 
 if (size === 2) {
   console.log('# fights = ', size - 1);
@@ -558,16 +567,21 @@ var data = {
 var options = {
   nodes: {
     fixed: true,
+    shape: 'box',
+    font: {
+      align: 'left'
+    }
   },
   edges: {
     arrows: 'to',
     smooth: {
-      // type: 'straightCross',
+      type: 'straightCross',
       roundness: 1
     },
-    // font: {
-    //   align: 'horizontal'
-    // }
   }
 };
 var network = new vis.Network(container, data, options);
+
+network.on('click', function(obj){
+  console.log(obj);
+})

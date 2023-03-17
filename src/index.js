@@ -9,6 +9,8 @@
 // </div>
 // `;
 
+let arraySize = 14;
+
 console.clear();
 
 var testCases = [
@@ -348,7 +350,7 @@ var testCases = [
   }
 ];
 
-for (var int = 1; int <= 20; int++) {
+for (var int = 1; int <= arraySize; int++) {
   // initialize empty array for testing
   var arr = [];
 
@@ -367,6 +369,8 @@ for (var int = 1; int <= 20; int++) {
 
   finalArr = finalArr.concat(balanceBracket(arr, size));
 }
+
+// console.log(finalArr);
 
 function balanceBracket(array, size) {
   var length = array.length;
@@ -405,8 +409,9 @@ function balanceBracket(array, size) {
 // console.log('/////////////////////////');
 
 // console.log('testing arrays');
-var sizes = [2, 4, 8, 16];
-size = 16;
+// var sizes = [2, 4, 8, 16];
+// size = 32;
+size = finalArr.length;
 
 // for (var i = 0; i < sizes.length; i++) {
 //   let size = sizes[i];
@@ -460,11 +465,52 @@ let rels = [];
 
 function makeNode(value, x, y) {
   var obj = {};
-
+  let label = ''
+  // console.log(value);
   obj.id = value;
   // obj.label = `Fight ${value}\nPerson 1: #\nPerson 2: #`;
-  obj.label = (value === size ? 'Final\n' : (value === size - 1 ? '3rd Place\n' : (value >= size-3 ? 'Semi-Finals\n' : ''))) 
-              + 'Person 1: #\nPerson 2: #';
+  label = label + `Fight ${value}`;
+  label = label + '\n' + (value === size ? 'Final' : (value === size - 1 ? '3rd Place' : (value >= size-3 ? 'Semi-Finals' : '')))
+  //obj.label = (value === size ? 'Final\n' : (value === size - 1 ? '3rd Place\n' : (value >= size-3 ? 'Semi-Finals\n' : ''))) 
+  //           + 'Person 1: #\nPerson 2: #';
+  if (value <= size / 2) {
+    let first = finalArr[2*(value-1)];
+    let second = finalArr[2*(value-1)+1];
+
+    // console.log(value, first, second);
+    if (first !== null) {
+      label = label + `\nPerson ${first}`;
+    } else {
+      // nothing
+      label = label + `N/A`;
+    }
+
+    if (second !== null) {
+      label = label + '\n' + `Person ${second}`;
+    } else {
+      label = label + '\n' + ' ';
+      obj.color = '#C0C0C0';
+    }
+    // label = label + `Person ${finalArr[2*(value-1)]}` + '\n' + `Person ${finalArr[2*(value-1)+1]}`
+  // } else {
+  //   // console.log('set winner of')
+  //   if (value <= size - 2) {
+  //     // console.log (size, value / 2)
+  //     // winner advances
+  //     label = label + `Winner of ${null}`;
+  //     label = label + `\nWinner of ${null}`;
+  //   } else if (value === size - 1 ) {
+  //     // loser advances
+  //     label = label + `Loser of ${value - 2}`;
+  //     label = label + `\nLoser of ${value - 1}`;
+  //   } else {
+  //     // final
+  //     // winner advances
+  //     label = label + `Winner of ${value - 3}`;
+  //     label = label + `\nWinner of ${value - 2}`;
+  //   }
+  }
+  obj.label = label;
   obj.x = x;
   obj.y = y;
 
@@ -473,17 +519,18 @@ function makeNode(value, x, y) {
 
 function makeRel(start, end, type) {
   var obj = {};
-
+  // console.log(start, end);
   obj.from = start;
   obj.to = end;
   obj.label = type;
-
+  // console.log(obj);
   return obj;
 }
 
 function buildBracket(arr) {
   const xSpacing = 150;
-  const ySpacing = 50;
+  const ySpacing = 75;
+  // console.log(arr);
 
   for (var i = 0; i < arr.length - 1; i++) {
     let length = arr[i].length;
@@ -518,6 +565,21 @@ function buildBracket(arr) {
       rels.push(makeRel(arr[i][1], arr[i + 1][1], ''));
     }
   }
+
+  // console.log(nodes);
+  rels.forEach(rel => {
+    let index = nodes.findIndex(node => node.id === rel.to);
+    if (index === size - 1) {
+      // finals
+      nodes[index].label = nodes[index].label + `\nWinner of ${rel.from}`;
+    } else if (index === size - 2) {
+      // 3rd place
+      nodes[index].label = nodes[index].label + `\nLoser of ${rel.from}`;
+    } else {
+      nodes[index].label = nodes[index].label + `\nWinner of ${rel.from}`;
+    }
+  });
+
 }
 
 if (size === 2) {
@@ -535,6 +597,7 @@ if (size === 2) {
   // console.log(arr);
 
   buildBracket(arr);
+  // console.log(arr);
 }
 
 // create a network
@@ -554,13 +617,19 @@ var options = {
   edges: {
     arrows: 'to',
     smooth: {
-      type: 'straightCross',
+      enabled: true,
+      // type: 'straightCross',
+      type: 'horizontal',
+      forceDirection: 'vertical',
       roundness: 1
     },
+    font: {
+      align: 'top'
+    }
   }
 };
 var network = new vis.Network(container, data, options);
 
 network.on('click', function(obj){
-  console.log(obj);
+  // console.log(obj);
 })
